@@ -166,7 +166,8 @@
   /* ======== הגדרות — לעדכן לפני עלייה לאוויר ======== */
   var PAGES_BASE = "/presentation/pages/";          // נתיב לתיקיית התמונות
   var PAGE_COUNT = 8;
-  var PHONE      = "*9330";               // מספר טלפון לחיוג
+  var PHONE      = "*9330";               // המספר שמוצג על הלחצן
+  var DIAL       = "077-8051381";                // המספר שמחויג בפועל (מחובר ל-CRM)
   var FORM_URL   = "https://efal.gindih.co.il/sheba?utm_source=9097";            // כתובת דף טופס יצירת קשר
   var PAGES = Array.from({length: PAGE_COUNT}, function(_, i){ return PAGES_BASE + "page-" + (i+1) + ".webp"; });
   /* =================================================== */
@@ -182,7 +183,7 @@
   var hint = root.querySelector('.gpf-hint');
 
   var call = root.querySelector('.gpf-cta--call');
-  call.href = 'tel:' + PHONE.replace(/[^\d+*#]/g,'').replace(/#/g,'%23');
+  call.href = 'tel:' + DIAL.replace(/[^\d+*#]/g,'').replace(/#/g,'%23');
   call.querySelector('span').innerHTML = 'חייגו <span style="display:inline-block;direction:ltr;unicode-bidi:isolate">' + PHONE.replace(/[<>&]/g,'') + '</span>';
   var form = root.querySelector('.gpf-cta--form'); form.href = FORM_URL;
   if (/^https?:/.test(FORM_URL) && FORM_URL.indexOf(location.host) === -1) { form.target = '_blank'; form.rel = 'noopener'; }
