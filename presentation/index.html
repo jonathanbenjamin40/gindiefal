@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="he" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>גינדי רמת אפעל | ברושור דיגיטלי</title>
+<style>html,body{margin:0;background:#f2f3f8;min-height:100%}body{display:flex;align-items:center;justify-content:center;min-height:100svh}</style>
+</head><body>
+<!-- ===================== Gindi Flipbook — רמת אפעל ===================== -->
+<!-- הדבקה: להעלות את תיקיית pages לשרת, לעדכן את PAGES_BASE / PHONE / FORM_URL בתחתית -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+#gp-flipbook{
+  --gpf-navy:#181c4b; --gpf-navy-2:#232867; --gpf-teal:#6ff0d8; --gpf-teal-2:#2fc3b0;
+  --gpf-pink:#e8458e; --gpf-ink:#181c4b; --gpf-muted:#6b6f93; --gpf-line:rgba(24,28,75,.14);
+  --gpf-ratio:1185/1687;
+  direction:rtl; font-family:'Heebo',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  color:var(--gpf-ink); box-sizing:border-box; width:100%;
+  padding:clamp(20px,4vw,48px) 16px clamp(28px,5vw,56px);
+  display:flex; flex-direction:column; align-items:center; gap:22px;
+  overflow-x:clip; -webkit-tap-highlight-color:transparent;
+}
+#gp-flipbook *,#gp-flipbook *::before,#gp-flipbook *::after{box-sizing:border-box}
+
+/* ---------- הספר ---------- */
+#gp-flipbook .gpf-stage{position:relative; width:100%; perspective:3400px; perspective-origin:50% 40%}
+#gp-flipbook .gpf-book{
+  position:relative; aspect-ratio:var(--gpf-ratio);
+  width:min(100%, 540px, calc((100svh - 270px) * 0.7024));
+  min-width:260px; margin-inline:auto;
+  touch-action:pan-y; user-select:none; -webkit-user-select:none; cursor:grab;
+  transform-style:preserve-3d;
+}
+#gp-flipbook .gpf-book.is-dragging{cursor:grabbing}
+#gp-flipbook .gpf-book::before{ /* צל מתחת לספר */
+  content:""; position:absolute; inset:auto 4% -18px 4%; height:30px; border-radius:50%;
+  background:radial-gradient(closest-side,rgba(15,18,55,.35),transparent); filter:blur(6px); z-index:-1;
+}
+#gp-flipbook .gpf-page,#gp-flipbook .gpf-leaf{position:absolute; inset:0; border-radius:4px 10px 10px 4px}
+#gp-flipbook .gpf-page{overflow:hidden; background:var(--gpf-navy);
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 18px 40px -18px rgba(15,18,55,.55)}
+#gp-flipbook .gpf-page img,#gp-flipbook .gpf-face img{
+  display:block; width:100%; height:100%; object-fit:cover; pointer-events:none; -webkit-user-drag:none}
+/* קו שדרה עדין בצד ימין */
+#gp-flipbook .gpf-page::after{content:""; position:absolute; inset:0 0 0 auto; width:18px;
+  background:linear-gradient(to left,rgba(0,0,0,.28),rgba(0,0,0,0)); pointer-events:none}
+#gp-flipbook .gpf-cast{position:absolute; inset:0; pointer-events:none; opacity:0}
+
+/* הדף המתהפך */
+#gp-flipbook .gpf-leaf{transform-origin:100% 50%; transform-style:preserve-3d; will-change:transform; display:none; z-index:3}
+#gp-flipbook .gpf-leaf.is-on{display:block}
+#gp-flipbook .gpf-face{position:absolute; inset:0; overflow:hidden; border-radius:inherit;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden}
+#gp-flipbook .gpf-front{background:var(--gpf-navy)}
+#gp-flipbook .gpf-back{transform:rotateY(180deg);
+  background:
+    radial-gradient(120% 80% at 0% 50%,rgba(111,240,216,.08),transparent 60%),
+    linear-gradient(to right,#1f2460,var(--gpf-navy) 70%,#10132f)}
+#gp-flipbook .gpf-back::after{ /* השתקפות לוגו עדינה בגב הדף */
+  content:""; position:absolute; inset:0;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px)}
+#gp-flipbook .gpf-light{position:absolute; inset:0; pointer-events:none}
+
+/* אזורי הקשה (שקופים) */
+#gp-flipbook .gpf-hint{position:absolute; top:50%; transform:translateY(-50%); z-index:5;
+  font-size:12px; letter-spacing:.02em; color:#fff; background:rgba(24,28,75,.72);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  padding:7px 12px; border-radius:999px; left:12px; opacity:0; transition:opacity .5s; pointer-events:none;
+  display:flex; align-items:center; gap:6px}
+#gp-flipbook .gpf-hint.is-on{opacity:1}
+
+/* ---------- דפדוף ---------- */
+#gp-flipbook .gpf-nav{display:flex; align-items:center; justify-content:center; gap:18px; margin-top:12px}
+#gp-flipbook .gpf-arrow{
+  width:44px; height:44px; border-radius:50%; border:1px solid var(--gpf-line); background:#fff;
+  color:var(--gpf-navy); display:grid; place-items:center; cursor:pointer; padding:0;
+  transition:transform .25s, border-color .25s, background .25s, color .25s, opacity .25s;
+  box-shadow:0 4px 14px -8px rgba(24,28,75,.35)}
+#gp-flipbook .gpf-arrow svg{width:18px; height:18px}
+#gp-flipbook .gpf-arrow:hover:not(:disabled){border-color:var(--gpf-teal-2); color:var(--gpf-teal-2); transform:translateY(-1px)}
+#gp-flipbook .gpf-arrow:focus-visible,#gp-flipbook .gpf-dot:focus-visible,#gp-flipbook .gpf-cta:focus-visible{
+  outline:2px solid var(--gpf-pink); outline-offset:3px}
+#gp-flipbook .gpf-arrow:disabled{opacity:.3; cursor:default; box-shadow:none}
+#gp-flipbook .gpf-progress{display:flex; flex-direction:column; align-items:center; gap:8px; min-width:120px}
+#gp-flipbook .gpf-dots{display:flex; gap:6px; align-items:center}
+#gp-flipbook .gpf-dot{width:6px; height:6px; border-radius:99px; border:0; padding:0; cursor:pointer;
+  background:rgba(24,28,75,.2); transition:width .35s cubic-bezier(.2,.8,.2,1), background .35s}
+#gp-flipbook .gpf-dot.is-active{width:22px; background:linear-gradient(to left,var(--gpf-teal-2),var(--gpf-pink))}
+#gp-flipbook .gpf-count{font-size:12px; color:var(--gpf-muted); font-variant-numeric:tabular-nums; letter-spacing:.06em; direction:ltr; unicode-bidi:isolate}
+
+/* ---------- יצירת קשר ---------- */
+#gp-flipbook .gpf-ctas{display:flex; gap:12px; width:min(100%,540px); margin-top:6px}
+#gp-flipbook .gpf-cta{
+  flex:1 1 0; min-width:0; white-space:nowrap; display:flex; align-items:center; justify-content:center; gap:10px;
+  min-height:54px; padding:12px 18px; border-radius:14px; text-decoration:none;
+  font-size:16px; font-weight:500; transition:transform .25s, box-shadow .25s, background .25s}
+#gp-flipbook .gpf-cta svg{width:19px; height:19px; flex:none}
+#gp-flipbook .gpf-cta--call{color:var(--gpf-navy);
+  background:linear-gradient(100deg,var(--gpf-teal) 0%,#4fd6c4 100%);
+  box-shadow:0 10px 24px -12px rgba(47,195,176,.8)}
+#gp-flipbook .gpf-cta--form{color:#fff; background:var(--gpf-navy);
+  box-shadow:0 10px 24px -12px rgba(24,28,75,.8); position:relative; overflow:hidden}
+#gp-flipbook .gpf-cta--form::after{content:""; position:absolute; inset:auto 0 0 0; height:3px;
+  background:linear-gradient(to left,var(--gpf-teal),var(--gpf-pink))}
+#gp-flipbook .gpf-cta:hover{transform:translateY(-2px)}
+#gp-flipbook .gpf-sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+
+@media (max-width:480px){
+  #gp-flipbook{gap:18px}
+  #gp-flipbook .gpf-book{width:min(100%, calc((100svh - 230px) * 0.7024))}
+  #gp-flipbook .gpf-ctas{gap:10px}
+  #gp-flipbook .gpf-cta{min-height:50px; padding:10px 8px; font-size:15px; gap:7px; border-radius:12px}
+  #gp-flipbook .gpf-cta svg{width:17px; height:17px}
+  #gp-flipbook .gpf-arrow{width:40px; height:40px}
+}
+@media (max-width:340px){
+  #gp-flipbook .gpf-cta{font-size:14px; gap:5px}
+  #gp-flipbook .gpf-cta svg{width:15px; height:15px}
+}
+</style>
+
+<section id="gp-flipbook" aria-roledescription="מצגת" aria-label="גינדי רמת אפעל — ברושור דיגיטלי">
+  <div class="gpf-stage">
+    <div class="gpf-book" tabindex="0" aria-label="ברושור. אפשר לדפדף בהחלקה או בחצים">
+      <div class="gpf-page gpf-under"><img alt=""><div class="gpf-cast"></div></div>
+      <div class="gpf-page gpf-current"><img alt=""></div>
+      <div class="gpf-leaf" aria-hidden="true">
+        <div class="gpf-face gpf-front"><img alt=""><div class="gpf-light"></div></div>
+        <div class="gpf-face gpf-back"><div class="gpf-light"></div></div>
+      </div>
+      <div class="gpf-hint" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        החליקו לדפדוף
+      </div>
+    </div>
+  </div>
+
+  <nav class="gpf-nav" aria-label="דפדוף">
+    <button class="gpf-arrow gpf-prev" type="button" aria-label="לעמוד הקודם">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+    <div class="gpf-progress">
+      <div class="gpf-dots"></div>
+      <div class="gpf-count" aria-live="polite"></div>
+    </div>
+    <button class="gpf-arrow gpf-next" type="button" aria-label="לעמוד הבא">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+  </nav>
+
+  <div class="gpf-ctas">
+    <a class="gpf-cta gpf-cta--call" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>
+      <span>חייגו אלינו</span>
+    </a>
+    <a class="gpf-cta gpf-cta--form" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg>
+      <span>השאירו פרטים</span>
+    </a>
+  </div>
+</section>
+
+<script>
+(function(){
+  /* ======== הגדרות — לעדכן לפני עלייה לאוויר ======== */
+  var PAGES_BASE = "pages/";          // נתיב לתיקיית התמונות
+  var PAGE_COUNT = 8;
+  var PHONE      = "*9330";               // מספר טלפון לחיוג
+  var FORM_URL   = "https://efal.gindih.co.il/sheba?utm_source=9097";            // כתובת דף טופס יצירת קשר
+  var PAGES = Array.from({length: PAGE_COUNT}, function(_, i){ return PAGES_BASE + "page-" + (i+1) + ".webp"; });
+  /* =================================================== */
+
+  var root = document.getElementById('gp-flipbook'); if(!root) return;
+  var book = root.querySelector('.gpf-book');
+  var under = root.querySelector('.gpf-under img'), cast = root.querySelector('.gpf-cast');
+  var current = root.querySelector('.gpf-current'), currentImg = current.querySelector('img');
+  var leaf = root.querySelector('.gpf-leaf'), leafImg = leaf.querySelector('.gpf-front img');
+  var lights = leaf.querySelectorAll('.gpf-light');
+  var prevBtn = root.querySelector('.gpf-prev'), nextBtn = root.querySelector('.gpf-next');
+  var dotsWrap = root.querySelector('.gpf-dots'), count = root.querySelector('.gpf-count');
+  var hint = root.querySelector('.gpf-hint');
+
+  var call = root.querySelector('.gpf-cta--call');
+  call.href = 'tel:' + PHONE.replace(/[^\d+*#]/g,'').replace(/#/g,'%23');
+  call.querySelector('span').innerHTML = 'חייגו <span style="display:inline-block;direction:ltr;unicode-bidi:isolate">' + PHONE.replace(/[<>&]/g,'') + '</span>';
+  var form = root.querySelector('.gpf-cta--form'); form.href = FORM_URL;
+  if (/^https?:/.test(FORM_URL) && FORM_URL.indexOf(location.host) === -1) { form.target = '_blank'; form.rel = 'noopener'; }
+
+  var N = PAGES.length, idx = 0, busy = false, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cache = PAGES.map(function(src){ var i = new Image(); i.decoding='async'; i.src = src; return i; });
+  function alt(i){ return 'עמוד ' + (i+1) + ' מתוך ' + N; }
+  function setImg(el, i){ el.src = PAGES[i]; el.alt = alt(i); }
+
+  for (var d = 0; d < N; d++) (function(d){
+    var b = document.createElement('button'); b.type='button'; b.className='gpf-dot'; b.setAttribute('aria-label', 'מעבר לעמוד ' + (d+1));
+    b.addEventListener('click', function(){ go(d); }); dotsWrap.appendChild(b);
+  })(d);
+  var dots = dotsWrap.children;
+
+  function ui(){
+    for (var i=0;i<N;i++) dots[i].classList.toggle('is-active', i===idx);
+    dots[idx] && dots[idx].setAttribute('aria-current','true');
+    count.textContent = (idx+1) + ' / ' + N;
+    prevBtn.disabled = idx===0; nextBtn.disabled = idx===N-1;
+  }
+  setImg(currentImg, 0); ui();
+
+  /* ---- רינדור זווית: 0 = הדף שטוח על הספר, 180 = הדף הועבר ---- */
+  function render(a){
+    var r = a*Math.PI/180, s = Math.sin(r), c = Math.cos(r);
+    leaf.style.transform = 'rotateY(' + a + 'deg)';
+    // תאורה על פני הדף — מתכהה ככל שמתרומם, עם פס ברק שנודד
+    var edge = Math.max(0, c) * 100;
+    lights[0].style.background = 'linear-gradient(to right, rgba(8,10,35,' + (0.55*s).toFixed(3) + ') 0%, rgba(255,255,255,' + (0.10*s).toFixed(3) + ') ' + (35 + 30*(1-c)).toFixed(1) + '%, rgba(8,10,35,' + (0.12*s).toFixed(3) + ') 100%)';
+    lights[1].style.background = 'linear-gradient(to left, rgba(0,0,0,' + (0.5*s).toFixed(3) + '), rgba(255,255,255,' + (0.06*s).toFixed(3) + ') 60%, rgba(0,0,0,.25))';
+    // צל שהדף מטיל על העמוד שמתחתיו
+    var p = (1 - Math.max(c, 0)) * 100; // קצה הדף (מהשמאל)
+    if (a <= 90) {
+      cast.style.background = 'linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,0) ' + Math.max(0,p-18).toFixed(1) + '%, rgba(6,8,30,' + (0.55*s).toFixed(3) + ') ' + p.toFixed(1) + '%, rgba(6,8,30,.6) 100%)';
+    } else {
+      var w = Math.max(6, 60*Math.abs(c) + 10*s);
+      cast.style.background = 'linear-gradient(to left, rgba(6,8,30,' + (0.5*s).toFixed(3) + ') 0%, rgba(6,8,30,0) ' + w.toFixed(1) + '%)';
+    }
+    cast.style.opacity = 1;
+    leaf.style.opacity = a > 150 ? Math.max(0, (180 - a)/30).toFixed(3) : 1;
+  }
+
+  function ease(t){ return .5 - .5*Math.cos(Math.PI*t); }
+  function tween(from, to, ms, done){
+    var t0 = performance.now();
+    (function step(now){
+      var t = Math.min(1, (now - t0)/ms), a = from + (to-from)*ease(t);
+      render(a);
+      if (t < 1) requestAnimationFrame(step); else done && done();
+    })(t0);
+  }
+
+  /* dir: 1 = קדימה, -1 = אחורה. מכין את הבמה לפני ההיפוך */
+  function prepare(dir, target){
+    if (dir > 0) { setImg(leafImg, idx); setImg(under, target); }
+    else         { setImg(leafImg, target); setImg(under, idx); }
+    var start = dir > 0 ? 0 : 180;
+    render(start);
+    current.style.visibility = 'hidden';
+    leaf.classList.add('is-on');
+    return start;
+  }
+  function finish(target){
+    idx = target; setImg(currentImg, idx);
+    current.style.visibility = ''; leaf.classList.remove('is-on'); cast.style.opacity = 0;
+    busy = false; ui();
+  }
+  function cancel(){ current.style.visibility=''; leaf.classList.remove('is-on'); cast.style.opacity=0; busy=false; }
+
+  function go(target){
+    if (busy || target === idx || target < 0 || target >= N) return;
+    hideHint();
+    var dir = target > idx ? 1 : -1;
+    if (reduce){ // מעבר עדין ללא תלת־ממד
+      current.style.transition='opacity .3s'; current.style.opacity=0;
+      setTimeout(function(){ idx=target; setImg(currentImg, idx); current.style.opacity=1; ui(); }, 300); return;
+    }
+    busy = true;
+    var start = prepare(dir, target);
+    tween(start, dir > 0 ? 180 : 0, 820, function(){ finish(target); });
+  }
+  prevBtn.addEventListener('click', function(){ go(idx-1); });
+  nextBtn.addEventListener('click', function(){ go(idx+1); });
+  function onKey(e){
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); go(idx+1); } // RTL: שמאלה = קדימה
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(idx-1); }
+  }
+  book.addEventListener('keydown', onKey);
+  document.addEventListener('keydown', function(e){
+    if (e.target.closest && e.target.closest('input,textarea,select,[contenteditable]')) return;
+    var r = root.getBoundingClientRect();
+    if (r.top < innerHeight*0.6 && r.bottom > innerHeight*0.4 && !root.contains(e.target)) onKey(e);
+  });
+
+  /* ---- גרירה / סוויפ: הדף נצמד לאצבע ---- */
+  var drag = null;
+  book.addEventListener('pointerdown', function(e){
+    if (busy || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    drag = { x0:e.clientX, y0:e.clientY, t0:performance.now(), dir:0, a:0, id:e.pointerId, w:book.offsetWidth, lastX:e.clientX, lastT:performance.now(), v:0 };
+  });
+  book.addEventListener('pointermove', function(e){
+    if (!drag || e.pointerId !== drag.id) return;
+    var dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+    if (!drag.dir){
+      if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) { if (Math.abs(dy) > 12) drag = null; return; }
+      drag.dir = dx > 0 ? 1 : -1; // RTL: גרירה ימינה = עמוד הבא
+      var target = idx + drag.dir;
+      if (target < 0 || target >= N){ drag.edge = true; }
+      else { busy = true; drag.target = target; prepare(drag.dir, target); }
+      try{ book.setPointerCapture(e.pointerId); }catch(_){}
+      book.classList.add('is-dragging'); hideHint();
+    }
+    var now = performance.now(); drag.v = (e.clientX - drag.lastX) / Math.max(1, now - drag.lastT); drag.lastX = e.clientX; drag.lastT = now;
+    var prog = Math.min(1, Math.max(0, (dx * drag.dir) / (drag.w * 1.15)));
+    if (drag.edge){ book.style.transform = 'translateX(' + (dx*0.12) + 'px)'; return; }
+    drag.a = drag.dir > 0 ? prog*180 : 180 - prog*180;
+    render(drag.a);
+  });
+  function end(e){
+    if (!drag) return;
+    var d = drag; drag = null; book.classList.remove('is-dragging');
+    if (!d.dir){ // הקשה: צד שמאל = קדימה, צד ימין = אחורה
+      var r = book.getBoundingClientRect(), x = (e.clientX - r.left)/r.width;
+      if (e.type === 'pointerup' && performance.now() - d.t0 < 350){ if (x < .38) go(idx+1); else if (x > .62) go(idx-1); }
+      return;
+    }
+    if (d.edge){ book.style.transition='transform .35s'; book.style.transform=''; setTimeout(function(){ book.style.transition=''; },360); return; }
+    var prog = d.dir > 0 ? d.a/180 : 1 - d.a/180;
+    var fling = d.v * d.dir > 0.35;
+    var commit = prog > 0.3 || fling;
+    var to = commit ? (d.dir > 0 ? 180 : 0) : (d.dir > 0 ? 0 : 180);
+    var ms = 250 + 550*Math.abs(to - d.a)/180;
+    tween(d.a, to, ms, function(){ commit ? finish(d.target) : cancel(); });
+  }
+  book.addEventListener('pointerup', end);
+  book.addEventListener('pointercancel', end);
+
+  /* ---- רמז "דפדוף" כשהספר נכנס למסך: פינת הדף מתרוממת לרגע ---- */
+  var hinted = false;
+  function hideHint(){ hint.classList.remove('is-on'); hinted = true; }
+  function peek(){
+    if (hinted || busy || reduce || N < 2) return; hinted = true;
+    hint.classList.add('is-on'); busy = true; prepare(1, 1);
+    tween(0, 28, 650, function(){ setTimeout(function(){ tween(28, 0, 600, function(){ cancel(); }); }, 180); });
+    setTimeout(function(){ hint.classList.remove('is-on'); }, 2600);
+  }
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(en){ if (en[0].isIntersecting){ io.disconnect(); cache[1].decode ? cache[1].decode().then(function(){ setTimeout(peek, 500); }, function(){}) : setTimeout(peek, 800); } }, {threshold:.6});
+    io.observe(book);
+  }
+})();
+</script>
+<!-- ===================== /Gindi Flipbook ===================== -->
+
+</body></html>
